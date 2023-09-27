@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
-	fmt.Println("Runing diffduck")
+	fmt.Println("Running diffduck")
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: diffduck <path>")
 		os.Exit(1)
@@ -49,6 +51,7 @@ func main() {
 		}
 	}
 
+	runWorkflow()
 	fmt.Println("Writing commit message to", path)
 	if err := os.WriteFile(path, []byte("Hello, DiffDuck!\n"), 0644); err != nil {
 		fmt.Println("Error: ", err)
@@ -56,4 +59,85 @@ func main() {
 	}
 
 	os.Exit(0)
+}
+
+func runWorkflow() {
+	if len(os.Getenv("DEBUG")) > 0 {
+		f, err := tea.LogToFile("debug.log", "debug")
+		if err != nil {
+			fmt.Println("fatal:", err)
+			os.Exit(1)
+		}
+		defer f.Close()
+	}
+
+	p := tea.NewProgram(initialModel())
+	if _, err := p.Run(); err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
+}
+
+type model struct {
+	choices  []string
+	cursor   int
+	selected map[int]struct{}
+}
+
+func initialModel() model {
+	return model{
+		choices:  []string{"foo", "bar", "baz"},
+		selected: make(map[int]struct{}),
+	}
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+			}
+		case "down", "j":
+			if m.cursor < len(m.choices)-1 {
+				m.cursor++
+			}
+		case "enter":
+			if _, ok := m.selected[m.cursor]; ok {
+				delete(m.selected, m.cursor)
+			} else {
+				m.selected[m.cursor] = struct{}{}
+			}
+		}
+	}
+	return m, nil
+}
+
+func (m model) View() string {
+	s := "Select a choice with up/down arrows and enter to toggle:\n\n"
+
+	for i, choice := range m.choices {
+		cursor := " " // no cursor
+		if m.cursor == i {
+			cursor = ">" // cursor!
+		}
+
+		checked := " " // not checked
+		if _, ok := m.selected[i]; ok {
+			checked = "x" // checked!
+		}
+
+		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+	}
+
+	s += "\nPress q to quit.\n"
+
+	return s
 }
