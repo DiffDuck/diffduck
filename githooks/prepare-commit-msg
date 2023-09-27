@@ -10,6 +10,7 @@ import typing
 from __init__ import (
     example_amend_commit_hook,
     example_new_commit_hook,
+    diffduck_commit_hook,
 )
 
 ### END HOOK IMPORTS ###
@@ -29,11 +30,13 @@ NewCommitHook = typing.Callable[[pathlib.Path], int]
 
 AMEND_COMMIT_HOOKS: typing.List[AmendCommitHook] = [
     example_amend_commit_hook,
+    diffduck_commit_hook,
 ]
 
 
 NEW_COMMIT_HOOKS: typing.List[NewCommitHook] = [
     example_new_commit_hook,
+    diffduck_commit_hook,
 ]
 
 ### END HOOKS LISTS ###
@@ -42,9 +45,9 @@ NEW_COMMIT_HOOKS: typing.List[NewCommitHook] = [
 ### Hook execution ###
 # Hooks are executed sequentially. If any hook returns a non-zero exit code,
 # the remaining hooks are not executed and the script exits with the exit code.
-def _amend_commit(path, type, sha) -> int:
+def _amend_commit(path) -> int:
     for hook in AMEND_COMMIT_HOOKS:
-        exit_code = hook(path, type, sha)
+        exit_code = hook(path)
         if exit_code > 0:
             return exit_code
     return 0
@@ -68,7 +71,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 4:
         COMMIT_TYPE = sys.argv[2]
         COMMIT_SHA = sys.argv[3]
-        exit_code = _amend_commit(COMMIT_MESSAGE_TMP_FILE_PATH, COMMIT_TYPE, COMMIT_SHA)
+        exit_code = _amend_commit(COMMIT_MESSAGE_TMP_FILE_PATH)
         sys.exit(exit_code)
 
 ### END HOOK EXECUTION ###
