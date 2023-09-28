@@ -15,14 +15,14 @@ import (
 const HELP_TEXT = `
 diffduck is an AI-powered writing assistant for git commit messages.
 
-This is a change.
-
-Commands:
+Usage:
 	diffduck up		Setup git repository
-	diffduck commit <path>	Edit commit message at <path>
-	diffduck version	Print the version`
+	diffduck draft		Draft commit message based on diffs since "gitBaseBranch"
+	diffduck pre-push	Pre-push git hook that runs "diffduck draft" and squashed commits
+	diffduck version	Print the current version of diffduck`
 
 const DEFAULT_CONFIG_JSON = `{
+	"gitBaseBranch": "main",
 	"gitHooksPath": ".githooks",
 	"reportCommandUsage": true
 }`
@@ -36,6 +36,7 @@ diffduck commit $1	# Run diffduck, the writing assistant for git commit messages
 `
 
 type Config struct {
+	GitBaseBranch      string `json:"gitBaseBranch"`
 	GitHooksPath       string `json:"gitHooksPath"`
 	ReportCommandUsage bool   `json:"reportCommandUsage"`
 }
