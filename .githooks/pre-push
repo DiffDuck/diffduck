@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import sys
+
+print("Hello, world!")
+
+print(sys.argv)
+for line in sys.stdin:
+    print(line)
+
+sys.exit(0)
+
+# Hello, world!
+# ['.githooks/pre-push', 'origin', 'https://github.com/DiffDuck/diffduck']
+# refs/heads/chenbobby--feature-branch a952528ce86e95ec686ce9e41b9fd7743c6fa9f5 refs/heads/chenbobby--feature-branch 00c71b887c0d97a7c9c1785d9f592faa21da7839
+
+# refs/heads/chenbobby--feature-branch 917ff123abb4cdc62a356bc7cfe2bbe14b6336be refs/heads/chenbobby--feature-branch 00c71b887c0d97a7c9c1785d9f592faa21da7839

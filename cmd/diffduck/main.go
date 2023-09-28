@@ -15,6 +15,8 @@ import (
 const HELP_TEXT = `
 diffduck is an AI-powered writing assistant for git commit messages.
 
+This is a change.
+
 Commands:
 	diffduck up		Setup git repository
 	diffduck commit <path>	Edit commit message at <path>
